@@ -1,12 +1,51 @@
 import * as React from "react";
 import { Link } from "expo-router";
-import { View, Text, StyleSheet } from "react-native";
-
+import { View, Text, StyleSheet, FlatList, Dimensions } from "react-native";
 import { Searchbar } from "react-native-paper";
 import { Avatar, Card, IconButton } from "react-native-paper";
+import { LinearGradient } from "expo-linear-gradient";
+
+
+const data = [
+  { id: "1", title: "Card 1", subtitle: "Subtitle 1" },
+  { id: "2", title: "Card 2", subtitle: "Subtitle 2" },
+  { id: "3", title: "Card 3", subtitle: "Subtitle 3" },
+  { id: "4", title: "Card 4", subtitle: "Subtitle 4" },
+  { id: "5", title: "Card 5", subtitle: "Subtitle 5" },
+  { id: "6", title: "Card 6", subtitle: "Subtitle 6" },
+  { id: "7", title: "Card 7", subtitle: "Subtitle 7" },
+  { id: "8", title: "Card 8", subtitle: "Subtitle 8" },
+  { id: "9", title: "Card 9", subtitle: "Subtitle 9" },
+  { id: "10", title: "Card 10", subtitle: "Subtitle 10" },
+  { id: "11", title: "Card 11", subtitle: "Subtitle 11" },
+  { id: "12", title: "Card 12", subtitle: "Subtitle 12" },
+  { id: "13", title: "Card 13", subtitle: "Subtitle 13" },
+  { id: "14", title: "Card 14", subtitle: "Subtitle 14" },
+  { id: "15", title: "Card 15", subtitle: "Subtitle 15" },
+  { id: "16", title: "Card 16", subtitle: "Subtitle 16" },
+  { id: "17", title: "Card 17", subtitle: "Subtitle 17" },
+  { id: "18", title: "Card 18", subtitle: "Subtitle 18" },
+  { id: "19", title: "Card 19", subtitle: "Subtitle 19" },
+  { id: "20", title: "Card 20", subtitle: "Subtitle 20" },
+];
 
 export default function Session() {
   const [searchQuery, setSearchQuery] = React.useState("");
+
+  const renderItem = ({ item }) => (
+    <Card style={styles.tile}>
+      <Card.Title
+        title={`Session Count ${item.id}`}
+        subtitle="10-10-2021"
+        titleStyle={styles.title}
+        subtitleStyle={styles.subtitle}
+        left={(props) => <Avatar.Icon {...props} icon="clipboard-check" />}
+        right={(props) => (
+          <IconButton {...props} icon="dots-vertical" onPress={() => {}} />
+        )}
+      />
+    </Card>
+  );
 
   return (
     <View style={styles.container}>
@@ -16,32 +55,13 @@ export default function Session() {
         onChangeText={setSearchQuery}
         value={searchQuery}
       />
-      <View style={styles.sessionContainer}>
-        {[...Array(10).keys()].map((index) => {
-          return (
-            <View style={styles.cardSession} key={index}>
-              <Card style={styles.card}>
-                <Card.Title
-                  title={`Session Count ${index + 1}`}
-                  subtitle="10-10-2021"
-                  titleStyle={styles.title}
-                  subtitleStyle={styles.subtitle}
-                  left={(props) => (
-                    <Avatar.Icon {...props} icon="clipboard-check" />
-                  )}
-                  right={(props) => (
-                    <IconButton
-                      {...props}
-                      icon="dots-vertical"
-                      onPress={() => {}}
-                    />
-                  )}
-                />
-              </Card>
-            </View>
-          );
-        })}
-      </View>
+      <FlatList
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.flatListContainer}
+        style={styles.flatList}
+      />
     </View>
   );
 }
@@ -49,30 +69,36 @@ export default function Session() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
     width: "100%",
   },
+  linearGradient: {
+    height: 150,
+    width: 200,
+    borderRadius: 20, // <-- Outer Border Radius
+  },
+  innerContainer: {
+    borderRadius: 15, // <-- Inner Border Radius
+    flex: 1,
+    margin: 5, // <-- Border Width
+    backgroundColor: "#fff",
+    justifyContent: "center",
+  },
   searchbar: {
-    width: "100%",
-    padding: 10,
+    marginHorizontal: 16,
     marginTop: 20,
     marginBottom: 20,
   },
-  sessionContainer: {
-    flex: 1,
-    width: "100%",
-    alignItems: "center",
-    gap: 10,
-    padding: 10,
-  },
-  cardSession: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  flatList: {
     width: "100%",
   },
-  card: {
-    flex: 1,
-    // width: "50%",
+  flatListContainer: {
+    paddingHorizontal: 16,
+  },
+  tile: {
+    marginBottom: 16,
+    width: "100%",
+    elevation: 4,
+    borderRadius: 8,
   },
   title: {
     color: "#ff6347",

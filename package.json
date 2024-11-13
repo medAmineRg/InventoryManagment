@@ -10,8 +10,11 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.3",
+    "@react-native-async-storage/async-storage": "^2.0.0",
     "@react-navigation/native": "^7.0.0",
     "@react-navigation/native-stack": "^7.0.0",
+    "@tanstack/react-query": "^5.59.20",
+    "axios": "^1.7.7",
     "expo": "~51.0.28",
     "expo-linear-gradient": "^13.0.2",
     "expo-linking": "^6.3.1",

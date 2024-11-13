@@ -1,10 +1,7 @@
-import * as React from "react";
-import { Link } from "expo-router";
-import { View, Text, StyleSheet, FlatList, Dimensions } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { View, StyleSheet, FlatList, Animated } from "react-native";
 import { Searchbar } from "react-native-paper";
 import { Avatar, Card, IconButton } from "react-native-paper";
-import { LinearGradient } from "expo-linear-gradient";
-
 
 const data = [
   { id: "1", title: "Card 1", subtitle: "Subtitle 1" },
@@ -30,21 +27,47 @@ const data = [
 ];
 
 export default function Session() {
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const borderAnimation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(borderAnimation, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: false,
+        }),
+        Animated.timing(borderAnimation, {
+          toValue: 0,
+          duration: 2000,
+          useNativeDriver: false,
+        }),
+      ])
+    ).start();
+  }, [borderAnimation]);
+
+  const borderColor = borderAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["#db2777", "#2563eb"],
+  });
 
   const renderItem = ({ item }) => (
-    <Card style={styles.tile}>
-      <Card.Title
-        title={`Session Count ${item.id}`}
-        subtitle="10-10-2021"
-        titleStyle={styles.title}
-        subtitleStyle={styles.subtitle}
-        left={(props) => <Avatar.Icon {...props} icon="clipboard-check" />}
-        right={(props) => (
-          <IconButton {...props} icon="dots-vertical" onPress={() => {}} />
-        )}
-      />
-    </Card>
+    <Animated.View
+      style={[styles.tile, { borderWidth: 4, borderColor, borderRadius: 16 }]}>
+      <Card>
+        <Card.Title
+          title={`Session Count ${item.id}`}
+          subtitle="10-10-2021"
+          titleStyle={styles.title}
+          subtitleStyle={styles.subtitle}
+          left={(props) => <Avatar.Icon {...props} icon="clipboard-check" />}
+          right={(props) => (
+            <IconButton {...props} icon="dots-vertical" onPress={() => {}} />
+          )}
+        />
+      </Card>
+    </Animated.View>
   );
 
   return (
@@ -70,18 +93,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
-  },
-  linearGradient: {
-    height: 150,
-    width: 200,
-    borderRadius: 20, // <-- Outer Border Radius
-  },
-  innerContainer: {
-    borderRadius: 15, // <-- Inner Border Radius
-    flex: 1,
-    margin: 5, // <-- Border Width
-    backgroundColor: "#fff",
-    justifyContent: "center",
   },
   searchbar: {
     marginHorizontal: 16,

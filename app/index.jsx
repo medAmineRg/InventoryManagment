@@ -5,14 +5,17 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Home</Text>
-      <Link style={styles.text} href="/signin">
+      <Link style={styles.text} href="./signin">
         View sign in
       </Link>
-      <Link style={styles.text} href="/signup">
+      <Link style={styles.text} href="./signup">
         View sign out
       </Link>
-      <Link style={styles.text} href="/session">
+      <Link style={styles.text} href="./session">
         Session
+      </Link>
+      <Link style={styles.text} href="./updatestock">
+        update stock
       </Link>
     </View>
   );

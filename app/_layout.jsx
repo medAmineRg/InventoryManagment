@@ -17,9 +17,10 @@ export default function RootLayout() {
           },
           contentStyle: { backgroundColor: "#000", color: "#fff" },
         }}>
-        <Stack.Screen name="signin" />
-        <Stack.Screen name="signup" />
-        <Stack.Screen name="session" />
+        <Stack.Screen name="signin/index" />
+        <Stack.Screen name="signup/index" />
+        <Stack.Screen name="session/index" />
+        <Stack.Screen name="updatestock/index" />
       </Stack>
     </QueryClientProvider>
   );

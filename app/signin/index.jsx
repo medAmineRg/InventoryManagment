@@ -21,20 +21,14 @@ export default function SignIn() {
   };
 
   useEffect(() => {
-    if (isSuccess) {
-      router.push("/session");
-    }
-  }, [isSuccess]);
-
-  useEffect(() => {
     const getToken = async () => {
       const token = await AsyncStorage.getItem("token");
-      if (token) {
-        router.push("/session");
+      if (token || isSuccess) {
+        router.replace("/session");
       }
     };
     getToken();
-  }, []);
+  }, [isSuccess]);
 
   return (
     <View style={styles.container}>

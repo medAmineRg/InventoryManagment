@@ -26,7 +26,11 @@ const useAuthentication = () => {
     },
     onError: (error) => {
       setIsSuccess(false);
-      if (error.response && error.response.status === 400) {
+      if (
+        error.response &&
+        error.response.status >= 400 &&
+        error.response.status <= 409
+      ) {
         setError(
           JSON.stringify(error.response.data) || "Invalid email or password"
         );
@@ -49,7 +53,12 @@ const useAuthentication = () => {
     },
     onError: (error) => {
       setIsSuccess(false);
-      if (error.response && error.response.status === 400) {
+
+      if (
+        error.response &&
+        error.response.status >= 400 &&
+        error.response.status <= 409
+      ) {
         setError(
           JSON.stringify(error.response.data) || "Invalid email or password"
         );

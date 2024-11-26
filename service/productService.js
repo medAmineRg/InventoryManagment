@@ -1,10 +1,9 @@
-import { CLOUD_API_URL, LOCAL_API_URL } from "@env";
+import { CLOUD_API_URL, LOCAL_API_URL, API_TOKEN } from "@env";
 import axios from "axios";
 
 axios.defaults.baseURL = LOCAL_API_URL;
 // add authorization header to the axios instance
-axios.defaults.headers.common["Authorization"] =
-  "F(7icy3t(cuF'6+QOFL#=)LOCK=Ht/j#;P@(:YjbkOmDU8#l-4E=hQr*aq*8aerV";
+axios.defaults.headers.common["Authorization"] = API_TOKEN;
 
 // fetch products from the API http://localhost:3000/product/basic
 const fetchProducts = async () => {

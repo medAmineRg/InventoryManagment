@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,30 +7,24 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { Button, Checkbox, Searchbar } from "react-native-paper";
+import { RadioButton, Searchbar } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
-
-const products = [
-  {
-    ProductId: 4710,
-    ProductRef: "000.000.015",
-    ProductLabel: "Robot cutteur 350g",
-  },
-  {
-    ProductId: 4711,
-    ProductRef: "000.000.016",
-    ProductLabel: "Robot cutteur 500g",
-  },
-];
+import useUpdateStock from "../../hooks/useUpdateStock";
 
 export default function UpdateStock() {
   const [selectedProduct, setSelectedProduct] = useState("");
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [checkedBoxes, setCheckedBoxes] = useState({
-    MAG: "unchecked",
-    MED: "unchecked",
-  });
+  const [checkedRadio, setCheckedRadio] = useState("1");
+
+  const {
+    updateStock,
+    updateStockIsLoading,
+    products,
+    fetchProducts,
+    productsLoading,
+  } = useUpdateStock();
 
   const filteredProducts = products.filter(
     (product) =>
@@ -53,19 +47,27 @@ export default function UpdateStock() {
     );
   };
 
-  const handleCheckboxPress = (label) => {
-    if (label === "MAG") {
-      setCheckedBoxes({
-        ...checkedBoxes,
-        MAG: checkedBoxes["MAG"] === "checked" ? "unchecked" : "checked",
-      });
-    } else {
-      setCheckedBoxes({
-        ...checkedBoxes,
-        MED: checkedBoxes["MED"] === "checked" ? "unchecked" : "checked",
-      });
-    }
+  // this function will be called when the user clicks the update stock button
+  // it will send the selected products and quantities to the API
+  // it will use postProducts from product service
+  const updateStockHandler = async () => {
+    const countData = {
+      products: selectedProducts.map((product) => ({
+        productId: product.ProductId,
+        quantity: product.quantity,
+      })),
+      warehouseId: checkedRadio,
+    };
+    updateStock(countData);
   };
+
+  if (productsLoading) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loadingText}>Loading products...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -115,30 +117,27 @@ export default function UpdateStock() {
         <Text style={styles.text}>
           Select the warehouse location (min one warehouse)
         </Text>
-        <Checkbox.Item
-          style={styles.checkbox}
-          labelStyle={{ color: "#fff" }}
-          color="#db2777"
-          label="MAG"
-          status={checkedBoxes["MAG"]}
-          onPress={(e) => handleCheckboxPress("MAG")}
-        />
-        <Checkbox.Item
-          style={styles.checkbox}
-          labelStyle={{ color: "#fff" }}
-          color="#db2777"
-          label="MED"
-          status={checkedBoxes["MED"]}
-          onPress={() => handleCheckboxPress("MED")}
-        />
+        <RadioButton.Group
+          onValueChange={(checkedRadio) => setCheckedRadio(checkedRadio)}
+          value={checkedRadio}>
+          <RadioButton.Item
+            labelStyle={{ color: "white" }}
+            color="#db2777"
+            label="MAG"
+            value="1"
+          />
+          <RadioButton.Item
+            labelStyle={{ color: "white" }}
+            color="#db2777"
+            label="MED"
+            value="3"
+          />
+        </RadioButton.Group>
       </View>
 
       <TouchableOpacity
         style={styles.btn}
-        onPress={() => {
-          console.log(selectedProducts);
-          console.log(checkedBoxes);
-        }}
+        onPress={updateStockHandler}
         // disabled={isLoading}
       >
         <Text style={styles.btnText}>
@@ -212,5 +211,11 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginBottom: 12,
+  },
+  loadingText: {
+    color: "#fff",
+    fontSize: 18,
+    textAlign: "center",
+    marginTop: 20,
   },
 });

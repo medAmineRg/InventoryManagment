@@ -1,6 +1,29 @@
-import { CLOUD_API_URL } from "@env";
+import { CLOUD_API_URL, LOCAL_API_URL } from "@env";
 import axios from "axios";
 
-axios.defaults.baseURL = CLOUD_API_URL;
+axios.defaults.baseURL = LOCAL_API_URL;
+// add authorization header to the axios instance
+axios.defaults.headers.common["Authorization"] =
+  "F(7icy3t(cuF'6+QOFL#=)LOCK=Ht/j#;P@(:YjbkOmDU8#l-4E=hQr*aq*8aerV";
 
-export { signup, signin };
+// fetch products from the API http://localhost:3000/product/basic
+const fetchProducts = async () => {
+  try {
+    const response = await axios.get("product/basic-info");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+// post request to this api http://localhost:3000/stock/set-product-count
+const postProducts = async (countData) => {
+  try {
+    const response = await axios.post("/stock/set-product-count", countData);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export { fetchProducts, postProducts };

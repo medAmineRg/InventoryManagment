@@ -17,8 +17,14 @@ const fetchProducts = async () => {
 
 // post request to this api http://localhost:3000/stock/set-product-count
 const postProducts = async (countData) => {
+  const token = countData.token;
+  delete countData.token;
   try {
-    const response = await axios.post("/stock/set-product-count", countData);
+    const response = await axios.post("/stock/set-product-count", countData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     return error.response;

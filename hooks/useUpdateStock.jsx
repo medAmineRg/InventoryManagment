@@ -18,7 +18,7 @@ const useUpdateStock = () => {
       if (data.status === 200) {
         setError(null);
         setSuccess(data);
-      } else if (data.status === 400) {
+      } else if (data.status >= 400 || data.status <= 409) {
         setError(data.data);
       } else {
         setSuccess(data);

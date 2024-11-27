@@ -9,7 +9,9 @@ import {
   Alert,
 } from "react-native";
 import {
+  ActivityIndicator,
   Button,
+  IconButton,
   Modal,
   Portal,
   Provider,
@@ -18,6 +20,7 @@ import {
 } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
 import useUpdateStock from "../../hooks/useUpdateStock";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function UpdateStock() {
   const [selectedProduct, setSelectedProduct] = useState("");
@@ -25,6 +28,7 @@ export default function UpdateStock() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [checkedRadio, setCheckedRadio] = useState("1");
+  const [token, setToken] = useState("");
 
   const {
     updateStock,
@@ -59,9 +63,21 @@ export default function UpdateStock() {
     );
   };
 
-  // this function will be called when the user clicks the update stock button
-  // it will send the selected products and quantities to the API
-  // it will use postProducts from product service
+  useEffect(() => {
+    const getToken = async () => {
+      const storedToken = await AsyncStorage.getItem("token");
+      setToken(storedToken);
+    };
+    getToken();
+  }, []);
+
+  useEffect(() => {
+    if (success) {
+      setSelectedProducts([]);
+      setSelectedProduct("");
+    }
+  }, [success]);
+
   const updateStockHandler = async () => {
     const countData = {
       products: selectedProducts.map((product) => ({
@@ -69,6 +85,7 @@ export default function UpdateStock() {
         quantity: product.quantity,
       })),
       warehouseId: checkedRadio,
+      token,
     };
     updateStock(countData);
   };
@@ -76,7 +93,7 @@ export default function UpdateStock() {
   if (productsLoading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading products...</Text>
+        <ActivityIndicator animating={true} color="#2563eb" size="large" />
       </View>
     );
   }
@@ -170,10 +187,27 @@ export default function UpdateStock() {
             contentContainerStyle={styles.modalContainer}>
             <Text style={error ? styles.errorText : styles.successText}>
               {error ? "Error" : "Success"}
+              {success && (
+                <IconButton
+                  icon="check-circle"
+                  size={30}
+                  color="green"
+                  iconColor="#22c55e"
+                />
+              )}
+              {error && (
+                <IconButton
+                  icon="close-circle"
+                  size={30}
+                  color="green"
+                  iconColor="#db2777"
+                />
+              )}
             </Text>
             <Text style={error ? styles.errorText : styles.successText}>
-              {JSON.stringify(error || success)}
+              {(error && error.message) || (success && success.message)}
             </Text>
+
             <Button
               mode="contained"
               onPress={() => {
@@ -185,7 +219,6 @@ export default function UpdateStock() {
             </Button>
           </Modal>
         </Portal>
-        <Text style={styles.message}>{JSON.stringify(success)}</Text>
       </View>
     </Provider>
   );
@@ -302,5 +335,11 @@ const styles = StyleSheet.create({
   dismissText: {
     color: "#fff",
     fontWeight: 700,
+  },
+  // loader style
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#2563eb",
   },
 });

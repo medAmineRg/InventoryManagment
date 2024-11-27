@@ -11,7 +11,7 @@ const fetchProducts = async () => {
     const response = await axios.get("product/basic-info");
     return response.data;
   } catch (error) {
-    console.error(error);
+    return error;
   }
 };
 
@@ -21,7 +21,7 @@ const postProducts = async (countData) => {
     const response = await axios.post("/stock/set-product-count", countData);
     return response.data;
   } catch (error) {
-    console.error(error);
+    return error.response;
   }
 };
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 
 const useUpdateStock = () => {
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const getProducts = useQuery({
     queryKey: ["products"],
@@ -13,38 +14,34 @@ const useUpdateStock = () => {
   const updateStock = useMutation({
     mutationFn: postProducts,
     onSuccess: async (data) => {
-      if (data) {
-        setIsSuccess(true);
+      console.log(data);
+      if (data.status === 200) {
         setError(null);
+        setSuccess(data);
+      } else if (data.status === 400) {
+        setError(data.data);
       } else {
-        setIsSuccess(false);
-        setError("An unexpected error occurred");
+        setSuccess(data);
+        setError(null);
       }
     },
     onError: (error) => {
-      setIsSuccess(false);
-      if (
-        error.response &&
-        error.response.status >= 400 &&
-        error.response.status <= 409
-      ) {
-        setError(
-          JSON.stringify(error.response.data) || "An unexpected error occurred"
-        );
-      } else {
-        setError("An unexpected error occurred");
-      }
+      setError(
+        JSON.stringify(error.response.data) || "An unexpected error occurred"
+      );
     },
   });
 
   return {
     updateStock: updateStock.mutate,
-    updateStockIsLoading: updateStock.isLoading,
-    isSuccess: updateStock.isSuccess, // Use react-query's `isSuccess`
-    error: updateStock.error?.message || error, // Combine react-query's error with local error handling
+    updateStockIsLoading: updateStock.isPending,
+    error: updateStock.error?.message || error,
     products: getProducts.data?.products || [],
-    productsLoading: getProducts.isLoading,
+    productsLoading: getProducts.isPending,
     fetchProducts: getProducts.refetch,
+    setError,
+    success,
+    setSuccess,
   };
 };
 

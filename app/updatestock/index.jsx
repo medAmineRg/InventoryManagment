@@ -6,8 +6,16 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  Alert,
 } from "react-native";
-import { RadioButton, Searchbar } from "react-native-paper";
+import {
+  Button,
+  Modal,
+  Portal,
+  Provider,
+  RadioButton,
+  Searchbar,
+} from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
 import useUpdateStock from "../../hooks/useUpdateStock";
 
@@ -23,7 +31,11 @@ export default function UpdateStock() {
     updateStockIsLoading,
     products,
     fetchProducts,
+    error,
+    setError,
     productsLoading,
+    success,
+    setSuccess,
   } = useUpdateStock();
 
   const filteredProducts = products.filter(
@@ -70,82 +82,112 @@ export default function UpdateStock() {
   }
 
   return (
-    <View style={styles.container}>
-      <Searchbar
-        placeholder="Search products..."
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        style={styles.searchbar}
-      />
-      <Picker
-        selectedValue={selectedProduct}
-        onValueChange={(itemValue) => {
-          setSelectedProduct(itemValue);
-          handleSelectProduct(itemValue);
-        }}
-        style={styles.picker}>
-        <Picker.Item label="Select a product" value="" />
-        {filteredProducts.map((product) => (
-          <Picker.Item
-            key={product.ProductId}
-            label={`${product.ProductRef} - ${product.ProductLabel}`}
-            value={product.ProductId}
-          />
-        ))}
-      </Picker>
-      <FlatList
-        data={selectedProducts}
-        keyExtractor={(item) => item.ProductId.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.selectedProduct}>
-            <Text style={styles.productText}>
-              {item.ProductRef} - {item.ProductLabel}
-            </Text>
-            <TextInput
-              style={styles.quantityInput}
-              placeholder="Qty"
-              keyboardType="numeric"
-              value={item.quantity}
-              onChangeText={(quantity) =>
-                handleQuantityChange(item.ProductId, quantity)
-              }
+    <Provider>
+      <View style={styles.container}>
+        <Searchbar
+          placeholder="Search products..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          style={styles.searchbar}
+        />
+        <Picker
+          selectedValue={selectedProduct}
+          onValueChange={(itemValue) => {
+            setSelectedProduct(itemValue);
+            handleSelectProduct(itemValue);
+          }}
+          style={styles.picker}>
+          <Picker.Item label="Select a product" value="" />
+          {filteredProducts.map((product) => (
+            <Picker.Item
+              key={product.ProductId}
+              label={`${product.ProductRef} - ${product.ProductLabel}`}
+              value={product.ProductId}
             />
-          </View>
-        )}
-      />
-      <View style={styles.warehouseContainer}>
-        <Text style={styles.text}>
-          Select the warehouse location (min one warehouse)
-        </Text>
-        <RadioButton.Group
-          onValueChange={(checkedRadio) => setCheckedRadio(checkedRadio)}
-          value={checkedRadio}>
-          <RadioButton.Item
-            labelStyle={{ color: "white" }}
-            color="#db2777"
-            label="MAG"
-            value="1"
-          />
-          <RadioButton.Item
-            labelStyle={{ color: "white" }}
-            color="#db2777"
-            label="MED"
-            value="3"
-          />
-        </RadioButton.Group>
-      </View>
+          ))}
+        </Picker>
+        <FlatList
+          data={selectedProducts}
+          keyExtractor={(item) => item.ProductId.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.selectedProduct}>
+              <Text style={styles.productText}>
+                {item.ProductRef} - {item.ProductLabel}
+              </Text>
+              <TextInput
+                style={styles.quantityInput}
+                placeholder="Qty"
+                keyboardType="numeric"
+                value={item.quantity}
+                onChangeText={(quantity) =>
+                  handleQuantityChange(item.ProductId, quantity)
+                }
+              />
+            </View>
+          )}
+        />
+        <View style={styles.warehouseContainer}>
+          <Text style={styles.text}>
+            Select the warehouse location (min one warehouse)
+          </Text>
+          <RadioButton.Group
+            onValueChange={(checkedRadio) => setCheckedRadio(checkedRadio)}
+            value={checkedRadio}>
+            <RadioButton.Item
+              labelStyle={{ color: "white" }}
+              color="#db2777"
+              label="MAG"
+              value="1"
+            />
+            <RadioButton.Item
+              labelStyle={{ color: "white" }}
+              color="#db2777"
+              label="MED"
+              value="3"
+            />
+          </RadioButton.Group>
+        </View>
 
-      <TouchableOpacity
-        style={styles.btn}
-        onPress={updateStockHandler}
-        // disabled={isLoading}
-      >
-        <Text style={styles.btnText}>
-          {/* {isLoading ? "Updating Stock ..." : "Update Stock"} */}
-          Update Stock
-        </Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={[
+            styles.btn,
+            updateStockIsLoading && { backgroundColor: "#db2777" },
+          ]}
+          onPress={updateStockHandler}
+          disabled={updateStockIsLoading}>
+          <Text style={styles.btnText}>
+            {updateStockIsLoading ? "Updating Stock ..." : "Update Stock"}
+            Update Stock
+          </Text>
+        </TouchableOpacity>
+        <Portal>
+          <Modal
+            visible={error || success}
+            onDismiss={() => {
+              setSuccess(null);
+              setError(null);
+            }}
+            contentContainerStyle={styles.modalContainer}>
+            <Text style={error ? styles.errorText : styles.successText}>
+              {error ? "Error" : "Success"}
+            </Text>
+            <Text style={error ? styles.errorText : styles.successText}>
+              {JSON.stringify(error || success)}
+            </Text>
+            <Button
+              mode="contained"
+              onPress={() => {
+                setSuccess(null);
+                setError(null);
+              }}
+              style={styles.dismissButton}>
+              <Text style={styles.dismissText}>Dismiss</Text>
+            </Button>
+          </Modal>
+        </Portal>
+        <Text style={styles.message}>{JSON.stringify(success)}</Text>
+      </View>
+    </Provider>
   );
 }
 
@@ -217,5 +259,48 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: "center",
     marginTop: 20,
+  },
+  // modal styles
+  errorText: {
+    color: "#db2777",
+    fontWeight: "bold",
+    fontSize: 20,
+  },
+  successText: {
+    color: "#2563eb",
+    fontWeight: "bold",
+    fontSize: 20,
+  },
+  modalContainer: {
+    backgroundColor: "white",
+    padding: 20,
+    marginHorizontal: 20,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#db2777",
+    marginBottom: 10,
+    textAlign: "left",
+  },
+  message: {
+    fontSize: 16,
+    color: "#ff0073",
+    marginBottom: 20,
+    textAlign: "left",
+  },
+  dismissButton: {
+    backgroundColor: "#2563eb",
+    marginTop: 20,
+  },
+  dismissText: {
+    color: "#fff",
+    fontWeight: 700,
   },
 });

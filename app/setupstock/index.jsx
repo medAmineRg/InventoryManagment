@@ -85,7 +85,6 @@ export default function UpdateStock() {
         quantity: product.quantity,
       })),
       warehouseId: checkedRadio,
-      token,
     };
     updateStock(countData);
   };

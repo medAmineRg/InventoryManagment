@@ -1,10 +1,8 @@
 import { LOCAL_API_URL, CLOUD_API_URL } from "@env";
-import axios from "axios";
-
-axios.defaults.baseURL = CLOUD_API_URL;
+import axiosConf from "./axiosConf";
 
 const signup = async ({ email, password }) => {
-  const response = await axios.post(`/signup`, {
+  const response = await axiosConf.post(`/signup`, {
     email: email,
     password: password,
   });
@@ -12,7 +10,7 @@ const signup = async ({ email, password }) => {
 };
 
 const signin = async ({ email, password }) => {
-  const response = await axios.post(`/signin`, {
+  const response = await axiosConf.post(`/signin`, {
     email: email,
     password: password,
   });

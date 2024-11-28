@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { fetchProducts, postProducts } from "../service/productService";
+import { fetchProducts, setUpStock } from "../service/StockService";
 import { useState } from "react";
 
 const useUpdateStock = () => {
@@ -12,7 +12,7 @@ const useUpdateStock = () => {
   });
 
   const updateStock = useMutation({
-    mutationFn: postProducts,
+    mutationFn: setUpStock,
     onSuccess: async (data) => {
       console.log(data);
       if (data.status === 200) {

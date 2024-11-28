@@ -1,18 +1,29 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { fetchProducts, setUpStock } from "../service/StockService";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const useUpdateStock = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    const getToken = async () => {
+      const storedToken = await AsyncStorage.getItem("token");
+      setToken(storedToken);
+    };
+    getToken();
+  }, []);
 
   const getProducts = useQuery({
-    queryKey: ["products"],
+    queryKey: ["products", token],
     queryFn: fetchProducts,
+    enabled: !!token,
   });
 
   const updateStock = useMutation({
-    mutationFn: setUpStock,
+    mutationFn: ({ token, countData }) => setUpStock({ token, countData }),
     onSuccess: async (data) => {
       console.log(data);
       if (data.status === 200) {

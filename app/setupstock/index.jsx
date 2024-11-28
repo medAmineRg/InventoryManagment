@@ -86,7 +86,7 @@ export default function UpdateStock() {
       })),
       warehouseId: checkedRadio,
     };
-    updateStock(countData);
+    updateStock({ token, countData });
   };
 
   if (productsLoading) {

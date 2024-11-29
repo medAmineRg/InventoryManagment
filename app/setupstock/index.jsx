@@ -63,6 +63,23 @@ export default function UpdateStock() {
     );
   };
 
+  const updateStockHandler = async () => {
+    const countData = {
+      products: selectedProducts.map((product) => ({
+        productId: product.ProductId,
+        quantity: product.quantity,
+      })),
+      warehouseId: checkedRadio,
+    };
+    updateStock({ token, countData });
+  };
+
+  const handleDeleteProduct = (productId) => {
+    setSelectedProducts((prevSelectedProducts) =>
+      prevSelectedProducts.filter((product) => product.ProductId != productId)
+    );
+  };
+
   useEffect(() => {
     const getToken = async () => {
       const storedToken = await AsyncStorage.getItem("token");
@@ -78,17 +95,7 @@ export default function UpdateStock() {
     }
   }, [success]);
 
-  const updateStockHandler = async () => {
-    const countData = {
-      products: selectedProducts.map((product) => ({
-        productId: product.ProductId,
-        quantity: product.quantity,
-      })),
-      warehouseId: checkedRadio,
-    };
-    updateStock({ token, countData });
-  };
-
+  // load spinner while fetching products
   if (productsLoading) {
     return (
       <View style={styles.container}>
@@ -97,6 +104,7 @@ export default function UpdateStock() {
     );
   }
 
+  console.log(selectedProducts);
   return (
     <Provider>
       <View style={styles.container}>
@@ -112,16 +120,40 @@ export default function UpdateStock() {
             setSelectedProduct(itemValue);
             handleSelectProduct(itemValue);
           }}
-          style={styles.picker}>
-          <Picker.Item label="Select a product" value="" />
+          style={{
+            color: "#ffffff",
+            backgroundColor: "#1f2937",
+            borderWidth: 1,
+            borderColor: "#2563eb",
+            borderRadius: 5,
+            paddingHorizontal: 10,
+            height: 50,
+            marginBottom: 16,
+          }}
+          dropdownIconColor="#ffffff"
+          itemStyle={{
+            backgroundColor: "#374151",
+            color: "#ffffff",
+            fontSize: 16,
+          }}>
+          <Picker.Item
+            label="Select a product"
+            value=""
+            style={{ color: "#9ca3af" }}
+          />
           {filteredProducts.map((product) => (
             <Picker.Item
               key={product.ProductId}
               label={`${product.ProductRef} - ${product.ProductLabel}`}
               value={product.ProductId}
+              style={{
+                backgroundColor: "#1f2937",
+                color: "#ffffff",
+              }}
             />
           ))}
         </Picker>
+
         <FlatList
           data={selectedProducts}
           keyExtractor={(item) => item.ProductId.toString()}
@@ -138,6 +170,13 @@ export default function UpdateStock() {
                 onChangeText={(quantity) =>
                   handleQuantityChange(item.ProductId, quantity)
                 }
+              />
+              <IconButton
+                icon="delete"
+                size={30}
+                color="green"
+                iconColor="#db2777"
+                onPress={() => handleDeleteProduct(item.ProductId)}
               />
             </View>
           )}

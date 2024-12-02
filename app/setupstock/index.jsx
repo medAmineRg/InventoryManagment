@@ -7,6 +7,7 @@ import {
   FlatList,
   TouchableOpacity,
   Alert,
+  Pressable,
 } from "react-native";
 import {
   ActivityIndicator,
@@ -21,6 +22,8 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import useUpdateStock from "../../hooks/useUpdateStock";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import QrCodeScanner from "../../component/QrCodeScanner";
+import { useCameraPermissions } from "expo-camera";
 
 export default function UpdateStock() {
   const [selectedProduct, setSelectedProduct] = useState("");
@@ -29,6 +32,12 @@ export default function UpdateStock() {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [checkedRadio, setCheckedRadio] = useState("1");
   const [token, setToken] = useState("");
+  const [isScannerVisible, setIsScannerVisible] = useState(false);
+
+  // scanner
+  const [permission, requestPermission] = useCameraPermissions();
+
+  const isPermissionGranted = permission?.granted;
 
   const {
     updateStock,
@@ -51,6 +60,14 @@ export default function UpdateStock() {
   const handleSelectProduct = (productId) => {
     const product = products.find((p) => p.ProductId == productId);
     if (product && !selectedProducts.some((p) => p.ProductId == productId)) {
+      setSelectedProducts([...selectedProducts, { ...product, quantity: "" }]);
+    }
+  };
+
+  const handleSelectProductByRef = (ref) => {
+    console.log(ref);
+    const product = products.find((p) => p.ProductRef == ref);
+    if (product && !selectedProducts.some((p) => p.ProductRef == ref)) {
       setSelectedProducts([...selectedProducts, { ...product, quantity: "" }]);
     }
   };
@@ -105,6 +122,14 @@ export default function UpdateStock() {
   }
 
   console.log(selectedProducts);
+  if (isPermissionGranted && isScannerVisible) {
+    return (
+      <QrCodeScanner
+        onClose={() => setIsScannerVisible(false)}
+        handleSelectProductByRef={handleSelectProductByRef}
+      />
+    );
+  }
   return (
     <Provider>
       <View style={styles.container}>
@@ -114,6 +139,13 @@ export default function UpdateStock() {
           onChangeText={setSearchQuery}
           style={styles.searchbar}
         />
+        <Pressable
+          onPress={() => {
+            requestPermission();
+            setIsScannerVisible(true);
+          }}>
+          <Text style={styles.qrText}>Request Permissions</Text>
+        </Pressable>
         <Picker
           selectedValue={selectedProduct}
           onValueChange={(itemValue) => {
@@ -243,7 +275,7 @@ export default function UpdateStock() {
               )}
             </Text>
             <Text style={error ? styles.errorText : styles.successText}>
-              {(error && error.message) || (success && success.message)}
+              {error?.message || success?.message}
             </Text>
 
             <Button
@@ -379,5 +411,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: "#2563eb",
+  },
+  // qr text
+  qrText: {
+    color: "#fff",
+    fontSize: 16,
+    marginBottom: 20,
   },
 });

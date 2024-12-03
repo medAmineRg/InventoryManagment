@@ -1,17 +1,41 @@
 import { CameraView } from "expo-camera";
 import {
-  Linking,
   Pressable,
   SafeAreaView,
   StyleSheet,
-  View,
   Text,
+  Vibration,
+  Platform,
+  Alert,
 } from "react-native";
 import { useState } from "react";
 
 export default function QrCodeScanner({ onClose, handleSelectProductByRef }) {
   const [isScannerVisible, setIsScannerVisible] = useState(true);
   const [scannedMessage, setScannedMessage] = useState("");
+  const handleBarCodeScanned = ({ data }) => {
+    if (data) {
+      if (Platform.OS !== "web" && Vibration.vibrate) {
+        Vibration.vibrate();
+      }
+      handleSelectProductByRef(data);
+      setIsScannerVisible(prev => false);
+      Alert.alert("Success", "Product scanned successfully: " + data, [
+        {
+          text: "Ok",
+          onPress: () => {
+            setIsScannerVisible(prev => true);
+          },
+        },
+      ]);
+      setScannedMessage("Product scanned successfully: " + data);
+    }
+  };
+
+  const handleCloseQrCode = () => {
+    setIsScannerVisible(false);
+    onClose();
+  };
 
   return (
     <SafeAreaView style={StyleSheet.absoluteFillObject}>
@@ -19,23 +43,12 @@ export default function QrCodeScanner({ onClose, handleSelectProductByRef }) {
         <CameraView
           style={StyleSheet.absoluteFillObject}
           facing="back"
-          onBarcodeScanned={({ data }) => {
-            if (data) {
-              console.log(data);
-              handleSelectProductByRef(data);
-              setScannedMessage("Product scanned successfully: " + data);
-            }
-          }}
+          onBarcodeScanned={handleBarCodeScanned}
           barcodeScannerSettings={{ barcodeTypes: "qr" }}
         />
       )}
       {scannedMessage && <Text style={styles.text}>{scannedMessage}</Text>}
-      <Pressable
-        onPress={() => {
-          setIsScannerVisible(false);
-          onClose();
-        }}
-        style={styles.closeBtn}>
+      <Pressable onPress={handleCloseQrCode} style={styles.closeBtn}>
         <Text style={styles.closeText}>Close</Text>
       </Pressable>
     </SafeAreaView>

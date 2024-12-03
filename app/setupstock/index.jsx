@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Alert,
   Pressable,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import {
   ActivityIndicator,
@@ -39,6 +41,8 @@ export default function UpdateStock() {
 
   const isPermissionGranted = permission?.granted;
 
+  console.log(selectedProducts);
+
   const {
     updateStock,
     updateStockIsLoading,
@@ -59,14 +63,27 @@ export default function UpdateStock() {
 
   const handleSelectProduct = (productId) => {
     const product = products.find((p) => p.ProductId == productId);
+    if (!product) {
+      Alert.alert(
+        "Product not found",
+        "The product with the given reference was not found."
+      );
+      return;
+    }
     if (product && !selectedProducts.some((p) => p.ProductId == productId)) {
       setSelectedProducts([...selectedProducts, { ...product, quantity: "" }]);
     }
   };
 
   const handleSelectProductByRef = (ref) => {
-    console.log(ref);
     const product = products.find((p) => p.ProductRef == ref);
+    if (!product) {
+      Alert.alert(
+        "Product not found",
+        "The product with the given reference was not found."
+      );
+      return;
+    }
     if (product && !selectedProducts.some((p) => p.ProductRef == ref)) {
       setSelectedProducts([...selectedProducts, { ...product, quantity: "" }]);
     }
@@ -121,7 +138,6 @@ export default function UpdateStock() {
     );
   }
 
-  console.log(selectedProducts);
   if (isPermissionGranted && isScannerVisible) {
     return (
       <QrCodeScanner
@@ -132,164 +148,184 @@ export default function UpdateStock() {
   }
   return (
     <Provider>
-      <View style={styles.container}>
-        <Searchbar
-          placeholder="Search products..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          style={styles.searchbar}
-        />
-        <Pressable
-          onPress={() => {
-            requestPermission();
-            setIsScannerVisible(true);
-          }}>
-          <Text style={styles.qrText}>Request Permissions</Text>
-        </Pressable>
-        <Picker
-          selectedValue={selectedProduct}
-          onValueChange={(itemValue) => {
-            setSelectedProduct(itemValue);
-            handleSelectProduct(itemValue);
-          }}
-          style={{
-            color: "#ffffff",
-            backgroundColor: "#1f2937",
-            borderWidth: 1,
-            borderColor: "#2563eb",
-            borderRadius: 5,
-            paddingHorizontal: 10,
-            height: 50,
-            marginBottom: 16,
-          }}
-          dropdownIconColor="#ffffff"
-          itemStyle={{
-            backgroundColor: "#374151",
-            color: "#ffffff",
-            fontSize: 16,
-          }}>
-          <Picker.Item
-            label="Select a product"
-            value=""
-            style={{ color: "#9ca3af" }}
-          />
-          {filteredProducts.map((product) => (
-            <Picker.Item
-              key={product.ProductId}
-              label={`${product.ProductRef} - ${product.ProductLabel}`}
-              value={product.ProductId}
-              style={{
-                backgroundColor: "#1f2937",
-                color: "#ffffff",
-              }}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        <View style={styles.container}>
+          <View style={styles.searchbarQrContainer}>
+            <Searchbar
+              placeholder="Search products..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              style={styles.searchbar}
             />
-          ))}
-        </Picker>
-
-        <FlatList
-          data={selectedProducts}
-          keyExtractor={(item) => item.ProductId.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.selectedProduct}>
-              <Text style={styles.productText}>
-                {item.ProductRef} - {item.ProductLabel}
-              </Text>
-              <TextInput
-                style={styles.quantityInput}
-                placeholder="Qty"
-                keyboardType="numeric"
-                value={item.quantity}
-                onChangeText={(quantity) =>
-                  handleQuantityChange(item.ProductId, quantity)
-                }
-              />
-              <IconButton
-                icon="delete"
-                size={30}
-                color="green"
-                iconColor="#db2777"
-                onPress={() => handleDeleteProduct(item.ProductId)}
-              />
-            </View>
-          )}
-        />
-        <View style={styles.warehouseContainer}>
-          <Text style={styles.text}>
-            Select the warehouse location (min one warehouse)
-          </Text>
-          <RadioButton.Group
-            onValueChange={(checkedRadio) => setCheckedRadio(checkedRadio)}
-            value={checkedRadio}>
-            <RadioButton.Item
-              labelStyle={{ color: "white" }}
-              color="#db2777"
-              label="MAG"
-              value="1"
-            />
-            <RadioButton.Item
-              labelStyle={{ color: "white" }}
-              color="#db2777"
-              label="MED"
-              value="3"
-            />
-          </RadioButton.Group>
-        </View>
-
-        <TouchableOpacity
-          style={[
-            styles.btn,
-            updateStockIsLoading && { backgroundColor: "#db2777" },
-          ]}
-          onPress={updateStockHandler}
-          disabled={updateStockIsLoading}>
-          <Text style={styles.btnText}>
-            {updateStockIsLoading ? "Updating Stock ..." : "Update Stock"}
-            Update Stock
-          </Text>
-        </TouchableOpacity>
-        <Portal>
-          <Modal
-            visible={error || success}
-            onDismiss={() => {
-              setSuccess(null);
-              setError(null);
-            }}
-            contentContainerStyle={styles.modalContainer}>
-            <Text style={error ? styles.errorText : styles.successText}>
-              {error ? "Error" : "Success"}
-              {success && (
-                <IconButton
-                  icon="check-circle"
-                  size={30}
-                  color="green"
-                  iconColor="#22c55e"
-                />
-              )}
-              {error && (
-                <IconButton
-                  icon="close-circle"
-                  size={30}
-                  color="green"
-                  iconColor="#db2777"
-                />
-              )}
-            </Text>
-            <Text style={error ? styles.errorText : styles.successText}>
-              {error?.message || success?.message}
-            </Text>
-
-            <Button
-              mode="contained"
+            <Pressable
               onPress={() => {
+                requestPermission();
+                setIsScannerVisible(true);
+              }}>
+              <View style={{}}>
+                <IconButton
+                  icon="qrcode-scan"
+                  size={30}
+                  containerColor="#db2777"
+                  animated={true}
+                  onPress={() => {
+                    requestPermission();
+                    setIsScannerVisible(true);
+                  }}
+                />
+              </View>
+            </Pressable>
+          </View>
+          <Picker
+            selectedValue={selectedProduct}
+            onValueChange={(itemValue) => {
+              setSelectedProduct(itemValue);
+              handleSelectProduct(itemValue);
+            }}
+            style={{
+              color: "#ffffff",
+              backgroundColor: "#1f2937",
+              borderWidth: 1,
+              borderColor: "#2563eb",
+              borderRadius: 5,
+              paddingHorizontal: 10,
+              height: 50,
+              marginBottom: 16,
+            }}
+            dropdownIconColor="#ffffff"
+            itemStyle={{
+              backgroundColor: "#374151",
+              color: "#ffffff",
+              fontSize: 16,
+            }}>
+            <Picker.Item
+              label="Select a product"
+              value=""
+              style={{ color: "#9ca3af" }}
+            />
+            {filteredProducts.map((product) => (
+              <Picker.Item
+                key={product.ProductId}
+                label={`${product.ProductRef} - ${product.ProductLabel}`}
+                value={product.ProductId}
+                style={{
+                  backgroundColor: "#1f2937",
+                  color: "#ffffff",
+                }}
+              />
+            ))}
+          </Picker>
+
+          <View style={styles.flatListContainer}>
+            <FlatList
+              removeClippedSubviews={false}
+              data={selectedProducts}
+              keyExtractor={(item) => item.ProductId.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.selectedProduct}>
+                  <Text style={styles.productText}>
+                    {item.ProductRef} - {item.ProductLabel}
+                  </Text>
+                  <TextInput
+                    style={styles.quantityInput}
+                    placeholder="Qty"
+                    keyboardType="numeric"
+                    value={item.quantity}
+                    onChangeText={(quantity) => {
+                      handleQuantityChange(item.ProductId, quantity);
+                    }}
+                  />
+                  <IconButton
+                    icon="delete"
+                    size={30}
+                    color="green"
+                    iconColor="#db2777"
+                    onPress={() => handleDeleteProduct(item.ProductId)}
+                  />
+                </View>
+              )}
+            />
+          </View>
+          <View style={styles.warehouseContainer}>
+            <Text style={styles.text}>
+              Select the warehouse location (min one warehouse)
+            </Text>
+            <RadioButton.Group
+              onValueChange={(checkedRadio) => setCheckedRadio(checkedRadio)}
+              value={checkedRadio}>
+              <RadioButton.Item
+                labelStyle={{ color: "white" }}
+                color="#db2777"
+                label="MAG"
+                value="1"
+              />
+              <RadioButton.Item
+                labelStyle={{ color: "white" }}
+                color="#db2777"
+                label="MED"
+                value="3"
+              />
+            </RadioButton.Group>
+          </View>
+
+          <TouchableOpacity
+            style={[
+              styles.btn,
+              updateStockIsLoading && { backgroundColor: "#db2777" },
+            ]}
+            onPress={updateStockHandler}
+            disabled={updateStockIsLoading}>
+            <Text style={styles.btnText}>
+              {updateStockIsLoading ? "Updating Stock ..." : "Update Stock"}
+              Update Stock
+            </Text>
+          </TouchableOpacity>
+          <Portal>
+            <Modal
+              visible={error || success}
+              onDismiss={() => {
                 setSuccess(null);
                 setError(null);
               }}
-              style={styles.dismissButton}>
-              <Text style={styles.dismissText}>Dismiss</Text>
-            </Button>
-          </Modal>
-        </Portal>
-      </View>
+              contentContainerStyle={styles.modalContainer}>
+              <Text style={error ? styles.errorText : styles.successText}>
+                {error ? "Error" : "Success"}
+                {success && (
+                  <IconButton
+                    icon="check-circle"
+                    size={30}
+                    color="green"
+                    iconColor="#22c55e"
+                  />
+                )}
+                {error && (
+                  <IconButton
+                    icon="close-circle"
+                    size={30}
+                    color="green"
+                    iconColor="#db2777"
+                  />
+                )}
+              </Text>
+              <Text style={error ? styles.errorText : styles.successText}>
+                {error?.message || success?.message}
+              </Text>
+
+              <Button
+                mode="contained"
+                onPress={() => {
+                  setSuccess(null);
+                  setError(null);
+                }}
+                style={styles.dismissButton}>
+                <Text style={styles.dismissText}>Dismiss</Text>
+              </Button>
+            </Modal>
+          </Portal>
+        </View>
+      </KeyboardAvoidingView>
     </Provider>
   );
 }
@@ -302,7 +338,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   searchbar: {
-    marginBottom: 16,
+    flex: 1,
   },
   picker: {
     height: 50,
@@ -356,6 +392,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginBottom: 12,
+    zIndex: 1,
   },
   loadingText: {
     color: "#fff",
@@ -417,5 +454,17 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     marginBottom: 20,
+  },
+  // search container
+  searchbarQrContainer: {
+    marginBottom: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  flatListContainer: {
+    flex: 1,
+    height: 400,
+    zIndex: 10,
   },
 });

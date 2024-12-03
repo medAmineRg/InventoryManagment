@@ -56,11 +56,11 @@ export default function App() {
         onPress={handleSignIn}
         disabled={isLoading}>
         <Text style={styles.btnText}>
-          {isLoading ? "Signing In..." : "Sign In"}
+          {isLoading ? "تسجيل الدخول..." : "تسجيل الدخول"}
         </Text>
       </TouchableOpacity>
       <Link style={[styles.text, styles.btnText]} href="/signup">
-        Sign Up if you don't have an account
+        إنشاء حساب إذا لم يكن لديك حساب
       </Link>
     </View>
   );

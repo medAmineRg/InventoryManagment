@@ -154,7 +154,7 @@ export default function UpdateStock() {
         <View style={styles.container}>
           <View style={styles.searchbarQrContainer}>
             <Searchbar
-              placeholder="Search products..."
+              placeholder="ابحث عن المنتجات..."
               value={searchQuery}
               onChangeText={setSearchQuery}
               style={styles.searchbar}
@@ -201,7 +201,7 @@ export default function UpdateStock() {
               fontSize: 16,
             }}>
             <Picker.Item
-              label="Select a product"
+              label="حدد المنتج"
               value=""
               style={{ color: "#9ca3af" }}
             />
@@ -211,7 +211,7 @@ export default function UpdateStock() {
                 label={`${product.ProductRef} - ${product.ProductLabel}`}
                 value={product.ProductId}
                 style={{
-                  backgroundColor: "#1f2937",
+                  backgroundColor: "#fff",
                   color: "#ffffff",
                 }}
               />
@@ -230,7 +230,7 @@ export default function UpdateStock() {
                   </Text>
                   <TextInput
                     style={styles.quantityInput}
-                    placeholder="Qty"
+                    placeholder="الكمية"
                     keyboardType="numeric"
                     value={item.quantity}
                     onChangeText={(quantity) => {
@@ -250,7 +250,7 @@ export default function UpdateStock() {
           </View>
           <View style={styles.warehouseContainer}>
             <Text style={styles.text}>
-              Select the warehouse location (min one warehouse)
+              اختر موقع المستودع (مستودع واحد على الأقل)
             </Text>
             <RadioButton.Group
               onValueChange={(checkedRadio) => setCheckedRadio(checkedRadio)}
@@ -278,8 +278,7 @@ export default function UpdateStock() {
             onPress={updateStockHandler}
             disabled={updateStockIsLoading}>
             <Text style={styles.btnText}>
-              {updateStockIsLoading ? "Updating Stock ..." : "Update Stock"}
-              Update Stock
+              {updateStockIsLoading ? "تحديث المخزون..." : "تحديث المخزون"}
             </Text>
           </TouchableOpacity>
           <Portal>

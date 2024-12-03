@@ -25,16 +25,16 @@ export default function Menu() {
   }, [isSuccess]);
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Menu</Text>
+      <Text style={styles.title}>القائمة</Text>
       <Link style={styles.menuItem} href="/session">
-        <Text style={styles.menuText}>SESSION</Text>
+        <Text style={styles.menuText}>اقتراحات حساب مخزون</Text>
       </Link>
       <Link style={styles.menuItem} href="/setupstock">
-        <Text style={styles.menuText}>SET UP THE STOCK</Text>
+        <Text style={styles.menuText}>إعداد المخزون</Text>
       </Link>
       {/* create a link that will signout delete a token from local storage name -> token */}
       <Link style={styles.menuItem} href="/" onPress={handleLogout}>
-        <Text style={styles.menuText}>SIGN OUT</Text>
+        <Text style={styles.menuText}>تسجيل خروج</Text>
       </Link>
     </View>
   );

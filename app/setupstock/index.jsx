@@ -194,7 +194,6 @@ export default function UpdateStock() {
               height: 50,
               marginBottom: 16,
             }}
-            dropdownIconColor="#ffffff"
             itemStyle={{
               backgroundColor: "#374151",
               color: "#ffffff",
@@ -211,7 +210,7 @@ export default function UpdateStock() {
                 label={`${product.ProductRef} - ${product.ProductLabel}`}
                 value={product.ProductId}
                 style={{
-                  backgroundColor: "#fff",
+                  backgroundColor: "#1f2937",
                   color: "#ffffff",
                 }}
               />

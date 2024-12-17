@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { View, StyleSheet, FlatList, Animated } from "react-native";
-import { Searchbar } from "react-native-paper";
+import { Searchbar, Text } from "react-native-paper";
 import { Avatar, Card, IconButton } from "react-native-paper";
+import useUpdateStock from "../../hooks/useUpdateStock";
+import { Link } from "expo-router";
 
 const data = [
   { id: "1", title: "Card 1", subtitle: "Subtitle 1" },
@@ -29,6 +31,9 @@ const data = [
 export default function Session() {
   const [searchQuery, setSearchQuery] = useState("");
   const borderAnimation = useRef(new Animated.Value(0)).current;
+  const { sessions } = useUpdateStock();
+
+  console.log(sessions);
 
   useEffect(() => {
     Animated.loop(
@@ -52,21 +57,34 @@ export default function Session() {
     outputRange: ["#db2777", "#2563eb"],
   });
 
+  const LeftContent = (props) => (
+    <Avatar.Icon {...props} icon="clipboard-check" />
+  );
+  const rightContent = (props) => (
+    <IconButton {...props} icon="dots-vertical" onPress={() => {}} />
+  );
+
   const renderItem = ({ item }) => (
     <Animated.View
       style={[styles.tile, { borderWidth: 4, borderColor, borderRadius: 16 }]}>
-      <Card>
-        <Card.Title
-          title={`Session Count ${item.id}`}
-          subtitle="10-10-2021"
-          titleStyle={styles.title}
-          subtitleStyle={styles.subtitle}
-          left={(props) => <Avatar.Icon {...props} icon="clipboard-check" />}
-          right={(props) => (
-            <IconButton {...props} icon="dots-vertical" onPress={() => {}} />
-          )}
-        />
-      </Card>
+      <Link
+        href={{
+          pathname: `/session/${item._id}`,
+          params: { data: JSON.stringify(item) },
+        }}>
+        <Card style={{ width: "100%" }}>
+          <Card.Title
+            title={`اقتراحات حساب مخزون ${new Date(
+              item.date
+            ).toLocaleDateString()}`}
+            subtitle={`${item.dolibarrWarehouseId == 1 ? "MAG" : "MED"}`}
+            titleStyle={styles.title}
+            subtitleStyle={styles.subtitle}
+            left={LeftContent}
+            right={rightContent}
+          />
+        </Card>
+      </Link>
     </Animated.View>
   );
 
@@ -79,7 +97,7 @@ export default function Session() {
         value={searchQuery}
       />
       <FlatList
-        data={data}
+        data={sessions}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.flatListContainer}
@@ -90,6 +108,19 @@ export default function Session() {
 }
 
 const styles = StyleSheet.create({
+  menuItem: {
+    width: "80%",
+    padding: 15,
+    marginVertical: 10,
+    backgroundColor: "#db2777",
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  menuText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
   container: {
     flex: 1,
     width: "100%",
